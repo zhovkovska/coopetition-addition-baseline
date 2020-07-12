@@ -1,17 +1,31 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+""" demo of a simple coopetition solution """
+import os
 import sys
 import pandas as pd
-import numpy as np
 
-def main():
-    # print command line arguments
-    input_dir, output_dir = sys.argv[1:]
-    predicted_result = []
-    df = np.loadtxt(input_dir + '/data.data')
-    df = pd.DataFrame(df, columns=['column 1', 'column 2'])
-    df['result'] = df['column 1'] + df['column 2']
-    np.savetxt(output_dir + '/data.predict', np.array(df['result']))
-    return 0
+def predict(data):
+    """ get two colums from `df` and returns the predicted ouput as a column (pd.Series)
+    TODO: modify it
+    """
+    result = data['col1'] - data['col2']
+    return result
+
+
+def main(input_dir, output_dir):
+    """ main procedure """
+    df = pd.read_csv(os.path.join(input_dir, 'data.tsv'), sep='\t')
+
+    predicted_result = predict(df)
+    assert isinstance(predicted_result, pd.core.series.Series), \
+        f"Invalid predicted output type {type(predicted_result)}"
+
+    predicted_result.to_csv(
+        os.path.join(output_dir, 'data.predict'),
+        index=False,
+        header=False)
+
 
 if __name__ == "__main__":
-    main()
+    assert len(sys.argv) >= 3, f"Invalid number of arguments: {len(sys.argv)}"
+    main(sys.argv[1], sys.argv[2])
